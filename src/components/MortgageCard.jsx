@@ -10,11 +10,9 @@ import {
     formatPercent,
 } from '../utils/mortgageUtils';
 
-let bonusIdCounter = 0;
-
 export function createBonus() {
     return {
-        id: ++bonusIdCounter,
+        id: Date.now() + Math.random(),
         label: '',
         value: 0.1,
         active: true,
@@ -85,6 +83,15 @@ export default function MortgageCard({
         effectiveRate,
         offer.years
     );
+
+    // Calculate base payment (without bonuses) to show savings
+    const baseMonthlyPayment = calculateMonthlyPayment(
+        loanAmount,
+        offer.baseRate,
+        offer.years
+    );
+    const monthlySavings = baseMonthlyPayment - monthlyPayment;
+
     const totalCost = calculateTotalCost(monthlyPayment, offer.years);
     const totalInterest = calculateTotalInterest(
         loanAmount,
@@ -252,6 +259,12 @@ export default function MortgageCard({
                             />
                             <span className="unit">%</span>
                         </div>
+                        {loanAmount > 0 && offer.years > 0 && (
+                            <div className="input-help-text">
+                                Cada 0,10% = <strong>{formatCurrency(calculateMonthlyPayment(loanAmount, effectiveRate + 0.1, offer.years) - monthlyPayment)}</strong>/mes
+                                <span className="help-text-year"> ({formatCurrency((calculateMonthlyPayment(loanAmount, effectiveRate + 0.1, offer.years) - monthlyPayment) * 12)}/año)</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
@@ -303,6 +316,11 @@ export default function MortgageCard({
                         <span className="derived-label">Cuota Mensual</span>
                         <span className="derived-value">
                             {formatCurrency(monthlyPayment)}
+                            {monthlySavings > 0 && (
+                                <span className="rate-reduction">
+                                    (−{formatCurrency(monthlySavings)})
+                                </span>
+                            )}
                         </span>
                     </div>
                     <div className="derived-item">

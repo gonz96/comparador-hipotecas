@@ -6,11 +6,9 @@ import {
   calculateTotalCost,
 } from "./utils/mortgageUtils";
 
-let offerIdCounter = 0;
-
 function createOffer(bankName = "") {
   return {
-    id: ++offerIdCounter,
+    id: Date.now() + Math.random(),
     bankName,
     housePrice: 250000,
     loanPercentage: 80,
