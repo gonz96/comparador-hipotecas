@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import MortgageCard, { createBonus } from './components/MortgageCard';
-import ComparisonSummary from './components/ComparisonSummary';
+import { useState, useEffect } from "react";
+import MortgageCard, { createBonus } from "./components/MortgageCard";
+import ComparisonSummary from "./components/ComparisonSummary";
 import {
   calculateMonthlyPayment,
   calculateTotalCost,
-} from './utils/mortgageUtils';
+} from "./utils/mortgageUtils";
 
 let offerIdCounter = 0;
 
-function createOffer(bankName = '') {
+function createOffer(bankName = "") {
   return {
     id: ++offerIdCounter,
     bankName,
@@ -27,7 +27,11 @@ function getRanks(offers) {
       .filter((b) => b.active)
       .reduce((sum, b) => sum + b.value, 0);
     const effectiveRate = Math.max(0, offer.baseRate - activeBonus);
-    const monthly = calculateMonthlyPayment(loanAmount, effectiveRate, offer.years);
+    const monthly = calculateMonthlyPayment(
+      loanAmount,
+      effectiveRate,
+      offer.years,
+    );
     return { id: offer.id, total: calculateTotalCost(monthly, offer.years) };
   });
   costs.sort((a, b) => a.total - b.total);
@@ -39,10 +43,11 @@ function getRanks(offers) {
 }
 
 export default function App() {
-  const [offers, setOffers] = useState([
-    createOffer('Banco A'),
-    createOffer('Banco B'),
-  ]);
+  const [offers, setOffers] = useState(() => {
+    const jsonSaved = localStorage.getItem("offers");
+    const initialValue = JSON.parse(jsonSaved);
+    return initialValue || [createOffer("Banco A"), createOffer("Banco B")];
+  });
 
   const addOffer = () => {
     setOffers([...offers, createOffer()]);
@@ -57,6 +62,10 @@ export default function App() {
   };
 
   const ranks = getRanks(offers);
+
+  useEffect(() => {
+    localStorage.setItem("offers", JSON.stringify(offers));
+  }, [offers]);
 
   return (
     <div className="app">
