@@ -90,6 +90,87 @@ body {
   font-size: 1.8rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 4px 10px;
+  border-radius: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.unsaved-dot {
+  color: var(--accent);
+  /* Changed from --primary to --accent */
+  font-size: 0.8rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.save-btn.unsaved {
+  background: var(--accent);
+  /* Changed from --primary to --accent */
+  color: white;
+  border-color: var(--accent);
+  /* Changed from --primary to --accent */
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  /* Adjusted rgba for --accent */
+}
+
+.save-btn.unsaved:hover {
+  background: #4f46e5;
+  /* Adjusted to a darker accent color */
+  transform: translateY(-1px);
+}
+
+.save-btn:not(.unsaved):hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
 .app-header h1 {
   font-size: 1.5rem;
   font-weight: 800;
@@ -107,8 +188,9 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 22px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  padding: 10px 20px;
+  background: var(--accent);
+  /* Changed from --primary to --accent */
   color: white;
   border: none;
   border-radius: var(--radius-sm);
@@ -118,6 +200,7 @@ body {
   cursor: pointer;
   transition: all var(--transition);
   box-shadow: 0 4px 14px var(--accent-glow);
+  /* Changed from --primary-glow to --accent-glow */
 }
 
 .add-offer-btn:hover {

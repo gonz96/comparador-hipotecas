@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
     calculateMonthlyPayment,
     calculateTotalCost,
+    calculateTotalInterest,
     formatCurrency,
     formatPercent,
 } from '../utils/mortgageUtils';
@@ -17,9 +18,11 @@ export default function ComparisonSummary({ offers }) {
             .filter((b) => b.active)
             .reduce((sum, b) => sum + b.value, 0);
         const effectiveRate = Math.max(0, offer.baseRate - activeBonus);
+        const extraCost = offer.extraCost || 0;
         const monthly = calculateMonthlyPayment(loanAmount, effectiveRate, offer.years);
-        const total = calculateTotalCost(monthly, offer.years);
-        const totalInterest = total - loanAmount;
+        const monthlyTotal = monthly + extraCost;
+        const total = calculateTotalCost(monthlyTotal, offer.years);
+        const totalInterest = calculateTotalInterest(loanAmount, monthly, offer.years);
 
         return {
             id: offer.id,

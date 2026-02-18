@@ -92,12 +92,13 @@ export default function MortgageCard({
     );
     const monthlySavings = baseMonthlyPayment - monthlyPayment;
 
-    const totalCost = calculateTotalCost(monthlyPayment, offer.years);
+    const totalCost = calculateTotalCost(monthlyPayment, offer.years) + (offer.extraCost || 0) * 12 * offer.years;
     const totalInterest = calculateTotalInterest(
         loanAmount,
         monthlyPayment,
         offer.years
     );
+    const totalMonthlyPayment = monthlyPayment + (offer.extraCost || 0);
 
     const schedule = useMemo(
         () => calculateAmortizationSchedule(loanAmount, effectiveRate, offer.years),
@@ -166,6 +167,7 @@ export default function MortgageCard({
     const [loanPctStr, setLoanPctStr] = useState(String(offer.loanPercentage));
     const [rateStr, setRateStr] = useState(String(offer.baseRate));
     const [yearsStr, setYearsStr] = useState(String(offer.years));
+    const [extraCostStr, setExtraCostStr] = useState(String(offer.extraCost || 0));
 
     return (
         <div className={`mortgage-card ${getRankClass()}`}>
@@ -293,6 +295,37 @@ export default function MortgageCard({
                             <span className="unit">años</span>
                         </div>
                     </div>
+
+                    <div className="input-group">
+                        <label>Coste Extra Mensual</label>
+                        <div className="input-with-unit">
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                value={extraCostStr}
+                                onChange={(e) => {
+                                    const raw = e.target.value;
+                                    // Allow empty or partial decimal
+                                    if (raw === '' || raw === '0' || raw === '0.') {
+                                        setExtraCostStr(raw);
+                                        handleField('extraCost', 0);
+                                        return;
+                                    }
+                                    if (/^\d*\.?\d{0,2}$/.test(raw)) {
+                                        const cleaned = raw.replace(/^0+(?=\d)/, '') || '0';
+                                        const num = parseFloat(cleaned);
+                                        if (!isNaN(num) && num >= 0) {
+                                            setExtraCostStr(cleaned);
+                                            handleField('extraCost', num);
+                                        }
+                                    }
+                                }}
+                                onBlur={() => setExtraCostStr(String(offer.extraCost || 0))}
+                                placeholder="Seguros, etc."
+                            />
+                            <span className="unit">€</span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Valores calculados */}
@@ -313,13 +346,22 @@ export default function MortgageCard({
                         </span>
                     </div>
                     <div className="derived-item highlight">
-                        <span className="derived-label">Cuota Mensual</span>
+                        <span className="derived-label">Cuota Total</span>
                         <span className="derived-value">
-                            {formatCurrency(monthlyPayment)}
-                            {monthlySavings > 0 && (
-                                <span className="rate-reduction">
-                                    (−{formatCurrency(monthlySavings)})
-                                </span>
+                            {formatCurrency(totalMonthlyPayment)}
+                            {(offer.extraCost > 0 || monthlySavings > 0) && (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                    {offer.extraCost > 0 && (
+                                        <span className="rate-reduction" style={{ color: 'var(--text-muted)', fontSize: '0.65em', margin: 0 }}>
+                                            ({formatCurrency(monthlyPayment)} hipoteca + {formatCurrency(offer.extraCost)} extra)
+                                        </span>
+                                    )}
+                                    {monthlySavings > 0 && (
+                                        <span className="rate-reduction">
+                                            (−{formatCurrency(monthlySavings)} bonif.)
+                                        </span>
+                                    )}
+                                </div>
                             )}
                         </span>
                     </div>
